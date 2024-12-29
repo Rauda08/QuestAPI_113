@@ -28,5 +28,5 @@ interface MahasiswaService {
     suspend fun updateMahasiswa(@Query("nim") nim: String, @Body mahasiswa: Mahasiswa)
 
     @DELETE("detelemahasiswa.php/{nim}")
-    suspend fun deleteMahasiswa(@Query("nim")nim: String): Response<Void>
+    suspend fun deleteMahasiswa(@Query("nim")nim: String,@Body mahasiswa : Mahasiswa)
 }
