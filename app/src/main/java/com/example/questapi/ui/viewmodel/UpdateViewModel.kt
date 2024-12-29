@@ -4,16 +4,41 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.questapi.Repository.MahasiswaRepository
 import com.example.questapi.model.Mahasiswa
+import kotlinx.coroutines.launch
 
 
 class UpdateViewModel(private val repository: MahasiswaRepository) : ViewModel() {
     var uiState by mutableStateOf(UpdateUiState())
         private set
 
-    // Fungsi untuk memuat data mahasiswa berdasarkan NIM
+    fun loadMahasiswaData(nim: String) {
+        viewModelScope.launch {
+            try {
+                val mahasiswa = repository.getMahasiswaById(nim)
+                uiState = UpdateUiState(updateUiEvent = mahasiswa.toUpdateUiEvent())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
+    fun updateUiEvent(updateUiEvent: UpdateUiEvent) {
+        uiState = UpdateUiState(updateUiEvent = updateUiEvent)
+    }
+
+    fun updateMhs() {
+        viewModelScope.launch {
+            try {
+                repository.updateMahasiswa(uiState.updateUiEvent.nim, uiState.updateUiEvent.toMhs())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+}
 
 data class UpdateUiState(
     val updateUiEvent: UpdateUiEvent = UpdateUiEvent()
