@@ -40,9 +40,14 @@ import com.example.questapi.R
 import com.example.questapi.model.Mahasiswa
 import com.example.questapi.ui.PenyediaViewModel
 import com.example.questapi.ui.customwidget.CostumeTopAppBar
+import com.example.questapi.ui.navigation.DestinasiNavigasi
 import com.example.questapi.ui.viewmodel.HomeUiState
 import com.example.questapi.ui.viewmodel.HomeViewModel
 
+object DestinasiHome : DestinasiNavigasi {
+    override val route = "home"
+    override val titleRes = "Home Mhs"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

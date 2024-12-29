@@ -24,11 +24,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.questapi.ui.PenyediaViewModel
 import com.example.questapi.ui.customwidget.CostumeTopAppBar
+import com.example.questapi.ui.navigation.DestinasiNavigasi
 import com.example.questapi.ui.viewmodel.InsertUiEvent
 import com.example.questapi.ui.viewmodel.InsertUiState
 import com.example.questapi.ui.viewmodel.InsertViewModel
 import kotlinx.coroutines.launch
 
+object DestinasiEntry : DestinasiNavigasi {
+    override val route = "item_entry"
+    override val titleRes = "Entry Mhs"
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryMhsScreen(
