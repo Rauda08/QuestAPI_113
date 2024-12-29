@@ -1,7 +1,20 @@
 package com.example.questapi.ui.theme.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import com.example.questapi.Repository.MahasiswaRepository
 import com.example.questapi.model.Mahasiswa
 
+class InsertViewModel(private val mhs: MahasiswaRepository) : ViewModel() {
+    var uiState by mutableStateOf(InsertUiState())
+        private set
+
+    fun updateInsertMhsState(insertUiEvent: InsertUiEvent) {
+        uiState = InsertUiState(insertUiEvent = insertUiEvent)
+    }
+}
 
 data class InsertUiState(
     val insertUiEvent: InsertUiEvent = InsertUiEvent()
