@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">QuestAPI</string>
+    <string name="retry">Failed to load</string>
+    <string name="loading">Loading</string>
 </resources>
