@@ -1,4 +1,4 @@
-package com.example.questapi.ui.viewmodel
+package com.example.questapi.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,7 +14,7 @@ import com.example.questapi.ui.navigation.PengelolaHalaman
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MahasiswaApp() {
+fun MahasiswaApp(modifier: Modifier = Modifier) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(

@@ -143,7 +143,7 @@ fun OnError(retryAction: () -> Unit, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.connectionError),
+            painter = painterResource(id = R.drawable.connectionerror),
             contentDescription = ""
         )
         Text(text = stringResource(R.string.loading), modifier = Modifier.padding(16.dp))

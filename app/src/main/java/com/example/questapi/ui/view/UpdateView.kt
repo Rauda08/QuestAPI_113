@@ -25,43 +25,50 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.questapi.ui.PenyediaViewModel
 import com.example.questapi.ui.customwidget.CostumeTopAppBar
 import com.example.questapi.ui.navigation.DestinasiNavigasi
-import com.example.questapi.ui.viewmodel.InsertUiEvent
-import com.example.questapi.ui.viewmodel.InsertUiState
-import com.example.questapi.ui.viewmodel.InsertViewModel
+import com.example.questapi.ui.viewmodel.UpdateUiEvent
+import com.example.questapi.ui.viewmodel.UpdateUiState
+import com.example.questapi.ui.viewmodel.UpdateViewModel
 import kotlinx.coroutines.launch
 
-object DestinasiEntry : DestinasiNavigasi {
-    override val route = "item_entry"
-    override val titleRes = "Entry Mhs"
+object DestinasiUpdate : DestinasiNavigasi {
+    override val route = "item_update"
+    override val titleRes = "Update Mhs"
+    const val nim = "nim"
+    val routeWithArgs = "$route/{$nim}"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EntryMhsScreen(
+fun UpdateMhsView(
     navigateBack: () -> Unit,
+    onBack : () -> Unit,
+    onNavigate: () -> Unit,
+    nim: String,
     modifier: Modifier = Modifier,
-    viewModel: InsertViewModel = viewModel(factory = PenyediaViewModel.Factory)
+    viewModel: UpdateViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    viewModel.loadMahasiswaData(nim)
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CostumeTopAppBar(
-                title = DestinasiEntry.titleRes,
+                title = DestinasiUpdate.titleRes,
                 canNavigateBack = true,
                 scrollBehavior = scrollBehavior,
                 navigateUp = navigateBack
             )
         }
     ) { innerPadding ->
-        EntryBody(
-            insertUiState = viewModel.uiState,
-            onSiswaValueChange = viewModel::updateInsertMhsState,
+        UpdateBody(
+            updateUiState = viewModel.uiState,
+            onSiswaValueChange = viewModel::updateUiEvent,
             onSaveClick = {
                 coroutineScope.launch {
-                    viewModel.insertMhs()
+                    viewModel.updateMhs()
                     navigateBack()
                 }
             },
@@ -74,9 +81,9 @@ fun EntryMhsScreen(
 }
 
 @Composable
-fun EntryBody(
-    insertUiState: InsertUiState,
-    onSiswaValueChange: (InsertUiEvent) -> Unit,
+fun UpdateBody(
+    updateUiState: UpdateUiState,
+    onSiswaValueChange: (UpdateUiEvent) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -85,7 +92,7 @@ fun EntryBody(
         modifier = modifier.padding(12.dp)
     ) {
         FormInput(
-            insertUiEvent = insertUiState.insertUiEvent,
+            updateUiEvent = updateUiState.updateUiEvent,
             onValueChange = onSiswaValueChange,
             modifier = Modifier.fillMaxWidth()
         )
@@ -94,7 +101,7 @@ fun EntryBody(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Simpan")
+            Text(text = "Perbarui")
         }
     }
 }
@@ -102,9 +109,9 @@ fun EntryBody(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormInput(
-    insertUiEvent: InsertUiEvent,
+    updateUiEvent: UpdateUiEvent,
     modifier: Modifier = Modifier,
-    onValueChange: (InsertUiEvent) -> Unit = {},
+    onValueChange: (UpdateUiEvent) -> Unit = {},
     enabled: Boolean = true
 ) {
     Column(
@@ -112,60 +119,54 @@ fun FormInput(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         OutlinedTextField(
-            value = insertUiEvent.nama,
-            onValueChange = { onValueChange(insertUiEvent.copy(nama = it)) },
+            value = updateUiEvent.nama,
+            onValueChange = { onValueChange(updateUiEvent.copy(nama = it)) },
             label = { Text("Nama") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
         OutlinedTextField(
-            value = insertUiEvent.nim,
-            onValueChange = { onValueChange(insertUiEvent.copy(nim = it)) },
+            value = updateUiEvent.nim,
+            onValueChange = { onValueChange(updateUiEvent.copy(nim = it)) },
             label = { Text("NIM") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
         OutlinedTextField(
-            value = insertUiEvent.jenisKelamin,
-            onValueChange = { onValueChange(insertUiEvent.copy(jenisKelamin = it)) },
+            value = updateUiEvent.jenisKelamin,
+            onValueChange = { onValueChange(updateUiEvent.copy(jenisKelamin = it)) },
             label = { Text("Jenis Kelamin") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
         OutlinedTextField(
-            value = insertUiEvent.alamat,
-            onValueChange = { onValueChange(insertUiEvent.copy(alamat = it)) },
+            value = updateUiEvent.alamat,
+            onValueChange = { onValueChange(updateUiEvent.copy(alamat = it)) },
             label = { Text("Alamat") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
         OutlinedTextField(
-            value = insertUiEvent.kelas,
-            onValueChange = { onValueChange(insertUiEvent.copy(kelas = it)) },
+            value = updateUiEvent.kelas,
+            onValueChange = { onValueChange(updateUiEvent.copy(kelas = it)) },
             label = { Text("Kelas") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
         OutlinedTextField(
-            value = insertUiEvent.angkatan,
-            onValueChange = { onValueChange(insertUiEvent.copy(angkatan = it)) },
+            value = updateUiEvent.angkatan,
+            onValueChange = { onValueChange(updateUiEvent.copy(angkatan = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             label = { Text("Angkatan") },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = true
         )
-        if (enabled) {
-            Text(
-                text = "Isi Semua Data!",
-                modifier = Modifier.padding(12.dp)
-            )
-        }
         Divider(
             thickness = 8.dp,
             modifier = Modifier.padding(12.dp)

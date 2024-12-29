@@ -4,12 +4,12 @@ import com.example.questapi.model.Mahasiswa
 import com.example.questapi.service.MahasiswaService
 import java.io.IOException
 
-interface MahasiswaRepository {
+interface MahasiswaRepository{
     suspend fun getMahasiswa(): List<Mahasiswa>
     suspend fun insertMahasiswa(mahasiswa: Mahasiswa)
-    suspend fun updateMahasiswa (nim: String, mahasiswa: Mahasiswa)
-    suspend fun deleteMahasiswa (nim: String)
-    suspend fun getMahasiswaById(nim: String): Mahasiswa
+    suspend fun updateMahasiswa(nim: String, mahasiswa: Mahasiswa)
+    suspend fun deleteMahasiswa(nim: String)
+    suspend fun getMahasiswaByNim(nim: String): Mahasiswa
 }
 
 class NetworkMahasiswaRepository(
@@ -20,7 +20,7 @@ class NetworkMahasiswaRepository(
     }
 
     override suspend fun updateMahasiswa(nim: String, mahasiswa: Mahasiswa) {
-        mahasiswaApiService.updateMahasiswa(nim, mahasiswa)
+        mahasiswaApiService.updateMahasiswa(nim,mahasiswa)
     }
 
     override suspend fun deleteMahasiswa(nim: String) {
@@ -32,16 +32,14 @@ class NetworkMahasiswaRepository(
                 response.message()
                 println(response.message())
             }
-        } catch (e: Exception) {
+        } catch (e:Exception){
             throw e
         }
     }
 
     override suspend fun getMahasiswa(): List<Mahasiswa> = mahasiswaApiService.getMahasiswa()
-    override suspend fun getMahasiswaById(nim: String): Mahasiswa {
-        return mahasiswaApiService.getMahasiswaById(nim)
+    override suspend fun getMahasiswaByNim(nim: String): Mahasiswa {
+        return mahasiswaApiService.getMahasiswaByNim(nim)
     }
+
 }
-
-
-

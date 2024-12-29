@@ -21,7 +21,7 @@ class DetailViewModel(
         viewModelScope.launch {
             _detailUiState.update { it.copy(isLoading = true, isError = false, errorMessage = "") }
             try {
-                val mahasiswa = mahasiswaRepository.getMahasiswaById(nim)
+                val mahasiswa = mahasiswaRepository.getMahasiswaByNim(nim)
                 _detailUiState.update {
                     it.copy(
                         detailUiEvent = mahasiswa.toDetailUiEvent(),

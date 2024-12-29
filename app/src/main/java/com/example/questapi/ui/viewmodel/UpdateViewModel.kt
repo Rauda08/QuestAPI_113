@@ -10,14 +10,16 @@ import com.example.questapi.model.Mahasiswa
 import kotlinx.coroutines.launch
 
 
-class UpdateViewModel(private val repository: MahasiswaRepository) : ViewModel() {
+class UpdateViewModel(
+
+    private val repository: MahasiswaRepository) : ViewModel() {
     var uiState by mutableStateOf(UpdateUiState())
         private set
 
     fun loadMahasiswaData(nim: String) {
         viewModelScope.launch {
             try {
-                val mahasiswa = repository.getMahasiswaById(nim)
+                val mahasiswa = repository.getMahasiswaByNim(nim)
                 uiState = UpdateUiState(updateUiEvent = mahasiswa.toUpdateUiEvent())
             } catch (e: Exception) {
                 e.printStackTrace()

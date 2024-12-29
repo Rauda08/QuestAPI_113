@@ -1,6 +1,8 @@
-package com.example.questapi.ui.theme.viewmodel
+package com.example.questapi.ui.viewmodel
 
 import android.net.http.HttpException
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,6 +19,7 @@ sealed class HomeUiState {
     object Loading : HomeUiState()
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 class HomeViewModel(private val mhs: MahasiswaRepository) : ViewModel(){
     var mhsUiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
         private set
@@ -25,6 +28,7 @@ class HomeViewModel(private val mhs: MahasiswaRepository) : ViewModel(){
         getMhs()
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getMhs() {
         viewModelScope.launch {
             mhsUiState = HomeUiState.Loading
@@ -38,6 +42,7 @@ class HomeViewModel(private val mhs: MahasiswaRepository) : ViewModel(){
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun deleteMhs(nim: String) {
         viewModelScope.launch {
             try {
