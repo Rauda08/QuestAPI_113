@@ -1,21 +1,20 @@
 package com.example.questapi.ui.view
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -28,55 +27,53 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.questapi.ui.viewmodel.DetailUiState
+import com.example.questapi.model.Mahasiswa
+import com.example.questapi.ui.PenyediaViewModel
+import com.example.questapi.ui.viewmodel.DetailMhsUiState
 
 
 object DestinasiDetail : DestinasiNavigasi {
-    override val route = "detail"
-    override val titleRes = "detail Mhs"
+    override val route = "nim_detail"
+    override val titleRes = "Detail Mahasiswa"
     const val nim = "nim"
     val routeWithArgs = "$route/{$nim}"
 }
-@Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailMahasiswaView(
+fun DetailView(
     modifier: Modifier = Modifier,
-    viewModel: DetailViewModel = viewModel(),
-    onBack: () -> Unit = { },
-    onEditClick: (String) -> Unit = { },
-    onDeleteClick: () -> Unit = { }
-) {
-    Scaffold (
+    navigateBack: () -> Unit,
+    onEditClick: (String) -> Unit,
+    detailViewModel: DetailViewModel = viewModel(factory = PenyediaViewModel.Factory)
+){
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             CostumeTopAppBar(
-                title = "Detail Mahasiswa",
+                title = DestinasiDetail.titleRes,
                 canNavigateBack = true,
-                navigateUp = onBack,
-                onRefresh = {
-                    viewModel.getMahasiswaDetail(viewModel.detailUiState.value.detailUiEvent.nim)
-                }
+                scrollBehavior = scrollBehavior,
+                navigateUp = navigateBack
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    onEditClick(viewModel.detailUiState.value.detailUiEvent.nim)
+                    val nim = (detailViewModel.detailMhsUiState as? DetailMhsUiState.Success)?.mahasiswa?.nim
+                    if (nim != null) onEditClick(nim)
                 },
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(16.dp)
+                shape = MaterialTheme.shapes.medium
             ) {
                 Icon(
                     imageVector = Icons.Default.Edit,
@@ -85,138 +82,107 @@ fun DetailMahasiswaView(
             }
         }
     ) { innerPadding ->
-        val detailUiState by viewModel.detailUiState.collectAsState()
-
-        BodyDetailMahasiswa(
-            modifier = Modifier.padding(innerPadding),
-            detailUiState = detailUiState
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerPadding).offset(y = (-70).dp)
+        ) {
+            DetailStatus(
+                mhsUiState = detailViewModel.detailMhsUiState,
+                retryAction = { detailViewModel.getMhsbyNim() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+                    .padding(16.dp)
+            )
+        }
     }
 }
 
 @Composable
-fun BodyDetailMahasiswa(
+fun DetailStatus(
+    mhsUiState: DetailMhsUiState,
+    retryAction: () -> Unit,
     modifier: Modifier = Modifier,
-    detailUiState: DetailUiState
 ) {
-    var deleteConfirmationRequired by remember { mutableStateOf(false) }
+    when (mhsUiState) {
+        is DetailMhsUiState.Success -> {
+            DetailCard(
+                mahasiswa = mhsUiState.mahasiswa,
+                modifier = modifier.padding(16.dp)
+            )
+        }
 
-    when {
-        detailUiState.isLoading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+        is DetailMhsUiState.Loading -> {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
 
-        detailUiState.isError -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Terjadi Kesalahan: ${detailUiState.errorMessage}",
-                    color = Color.Red,
-                    fontSize = 16.sp
-                )
-            }
-        }
-
-        detailUiState.isUiEventNotEmpty -> {
-            LazyColumn(
-                modifier = modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                item {
-                    ItemDetailMahasiswa(
-                        label = "NIM",
-                        value = detailUiState.detailUiEvent.nim,
-                        icon = Icons.Default.AccountBox
-                    )
-                    ItemDetailMahasiswa(
-                        label = "Nama",
-                        value = detailUiState.detailUiEvent.nama,
-                        icon = Icons.Default.Person
-                    )
-                    ItemDetailMahasiswa(
-                        label = "Alamat",
-                        value = detailUiState.detailUiEvent.alamat,
-                        icon = Icons.Default.Home
-                    )
-                    ItemDetailMahasiswa(
-                        label = "Jenis Kelamin",
-                        value = detailUiState.detailUiEvent.jenisKelamin,
-                        icon = Icons.Default.MailOutline
-                    )
-                    ItemDetailMahasiswa(
-                        label = "Kelas",
-                        value = detailUiState.detailUiEvent.kelas,
-                        icon = Icons.Default.Warning
-                    )
-                    ItemDetailMahasiswa(
-                        label = "Angkatan",
-                        value = detailUiState.detailUiEvent.angkatan,
-                        icon = Icons.Default.Warning
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { deleteConfirmationRequired = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = "Hapus Mahasiswa")
+        is DetailMhsUiState.Error -> {
+            Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Terjadi kesalahan.")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = retryAction) {
+                        Text(text = "Coba Lagi")
                     }
                 }
-            }
-        }
-
-        detailUiState.isUiEventEmpty -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Data Mahasiswa Tidak Ditemukan",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Gray
-                )
             }
         }
     }
 }
 
 @Composable
-fun ItemDetailMahasiswa(
-    label: String,
-    value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
+fun DetailCard(
+    mahasiswa: Mahasiswa,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        shape = MaterialTheme.shapes.medium
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            //horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            ComponentDetailMhs(judul = "NIM", isinya = mahasiswa.nim)
+            Spacer(modifier = Modifier.height(8.dp))
+            ComponentDetailMhs(judul = "Nama", isinya = mahasiswa.nama)
+            Spacer(modifier = Modifier.height(8.dp))
+            ComponentDetailMhs(judul = "Alamat", isinya = mahasiswa.alamat)
+            Spacer(modifier = Modifier.height(8.dp))
+            ComponentDetailMhs(judul = "Jenis Kelamin", isinya = mahasiswa.jeniskelamin)
+            Spacer(modifier = Modifier.height(8.dp))
+            ComponentDetailMhs(judul = "Kelas", isinya = mahasiswa.kelas)
+            Spacer(modifier = Modifier.height(8.dp))
+            ComponentDetailMhs(judul = "Angkatan", isinya = mahasiswa.angkatan)
+        }
+    }
+}
+
+@Composable
+fun ComponentDetailMhs(
+    modifier: Modifier = Modifier,
+    judul: String,
+    isinya: String,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = Color.Gray,
-            modifier = Modifier.padding(end = 8.dp)
-        )
         Text(
-            text = "$label:",
-            fontSize = 18.sp,
+            text = "$judul:",
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Gray,
-            modifier = Modifier.padding(end = 8.dp)
+            color = Color.Gray
         )
         Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Normal
+            text = isinya,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
         )
     }
 }
