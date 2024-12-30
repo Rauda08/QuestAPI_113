@@ -14,7 +14,8 @@ import com.example.questapi.ui.navigation.PengelolaHalaman
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MahasiswaApp(modifier: Modifier = Modifier) {
+fun MahasiswaApp(
+    modifier: Modifier = Modifier) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     Scaffold(

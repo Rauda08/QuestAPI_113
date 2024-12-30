@@ -1,5 +1,6 @@
 package com.example.questapi.Repository
 
+import com.example.questapi.service.MahasiswaService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
