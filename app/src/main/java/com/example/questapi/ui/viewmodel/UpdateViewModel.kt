@@ -3,74 +3,42 @@ package com.example.questapi.ui.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.questapi.Repository.MahasiswaRepository
 import com.example.questapi.model.Mahasiswa
+import com.example.questapi.ui.view.DestinasiUpdate
 import kotlinx.coroutines.launch
 
 
 class UpdateViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val mahasiswaRepository: MahasiswaRepository
+) : ViewModel() {
 
-    private val repository: MahasiswaRepository) : ViewModel() {
-    var uiState by mutableStateOf(UpdateUiState())
+    var uiState by mutableStateOf(InsertUiState())
         private set
 
-    fun loadMahasiswaData(nim: String) {
+    val nim: String = checkNotNull(savedStateHandle[DestinasiUpdate.nim])
+
+    init {
         viewModelScope.launch {
-            try {
-                val mahasiswa = repository.getMahasiswaByNim(nim)
-                uiState = UpdateUiState(updateUiEvent = mahasiswa.toUpdateUiEvent())
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            uiState = mahasiswaRepository.getMahasiswaByNim(nim).toUiStateMhs()
         }
     }
 
-    fun updateUiEvent(updateUiEvent: UpdateUiEvent) {
-        uiState = UpdateUiState(updateUiEvent = updateUiEvent)
+    fun updateInsertMhsState(insertUiEvent: InsertUiEvent) {
+        uiState = InsertUiState(insertUiEvent = insertUiEvent)
     }
 
-    fun updateMhs() {
+    suspend fun UpdateMahasiswa(){
         viewModelScope.launch {
             try {
-                repository.updateMahasiswa(uiState.updateUiEvent.nim, uiState.updateUiEvent.toMhs())
+                mahasiswaRepository.updateMahasiswa(nim, uiState.insertUiEvent.toMhs())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
 }
-
-data class UpdateUiState(
-    val updateUiEvent: UpdateUiEvent = UpdateUiEvent()
-)
-
-data class UpdateUiEvent(
-    val nim: String = "",
-    val nama: String = "",
-    val alamat: String = "",
-    val jenisKelamin: String = "",
-    val kelas: String = "",
-    val angkatan: String = ""
-)
-
-// Fungsi untuk mengonversi UpdateUiEvent ke Mahasiswa
-fun UpdateUiEvent.toMhs(): Mahasiswa = Mahasiswa(
-    nim = nim,
-    nama = nama,
-    alamat = alamat,
-    jeniskelamin = jenisKelamin,
-    kelas = kelas,
-    angkatan = angkatan
-)
-
-// Fungsi untuk mengonversi Mahasiswa ke UpdateUiEvent
-fun Mahasiswa.toUpdateUiEvent(): UpdateUiEvent = UpdateUiEvent(
-    nim = nim,
-    nama = nama,
-    alamat = alamat,
-    jenisKelamin = jeniskelamin,
-    kelas = kelas,
-    angkatan = angkatan
-)
